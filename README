@@ -1,28 +1,17 @@
 WLHostMachineStats README
 =========================
 
-Copyright (c) 2011-2013 Paul Done
+Copyright (c) 2016 GREGOIRE Alain
 Version:  0.3
 Licence:  "3-clause" BSD based Licence - refer to the files 'LICENSE'
 Last updated:  18-Sep-2013
-Home Page:  http://sourceforge.net/projects/wlhostmchnstats
-Help Docs:  http://sourceforge.net/p/wlhostmchnstats/wiki
+Home Page:  https://github.com/gregoan/wlhostmachinestats
 
 Introduction
 ------------
-WLHostMachineStats is a small agent (JMX MBean) that runs in every WebLogic 
-Server in a WebLogic domain. It is used to collect statistics (O.S. 
-CPU/Memory/Network usage) from the machine hosting each WebLogic Server 
-instance.
-
-WLHostMachineStats is also useful when employed in conjunction with 
-DomainHealth (http://sourceforge.net/projects/domainhealth) enabling 
-historical graphs of host machine operating system statistics to be
-displayed alongside regular WebLogic Server statistics.
-
-WLHostMachineStats is a deployable JEE web-application (WAR archive). It is 
-only supported for WebLogic versions 10.3 or greater, and on host machines
-running the following operating systems only (including Exalogic): 
+WLHostMachineStats is a small agent (JMX MBean) that runs in every WebLogic Server in a WebLogic domain. It is used to collect statistics (O.S. CPU/Memory/Network usage) from the machine hosting each WebLogic Server instance.
+WLHostMachineStats is also useful when employed in conjunction with DomainHealth (https://github.com/ccristian/domainhealth) enabling historical graphs of host machine operating system statistics to be displayed alongside regular WebLogic Server statistics.
+WLHostMachineStats is a deployable JEE web-application (WAR archive). It is only supported for WebLogic versions 10.3 or greater, and on host machines running the following operating systems only: 
 
  * Linux x86 64-bit
  * Linux x86 32-bit
@@ -30,10 +19,6 @@ running the following operating systems only (including Exalogic):
  * Solaris SPARC 32-bit
  * Solaris x86 64-bit
  * Solaris x86 32-bit
-
-Much more help documentation is available online at: 
- http://sourceforge.net/p/wlhostmchnstats/wiki
-
 
 Quick Installation How To
 -------------------------
@@ -60,7 +45,7 @@ Quick Installation How To
      a) use WLST with the custom() command and traverse to the MBean using 
         ls() and cd()
      b) use the JConsole utility shipped in the JDK that WebLogic bundles 
-     c) use DomainHealth (http://sourceforge.net/projects/domainhealth) to 
+     c) use DomainHealth (https://github.com/ccristian/domainhealth) to 
      view graphs of these host machine statistics over time. 
 
 NOTE: WLHostMachineStatistics will do its best to identify the primary network
@@ -71,39 +56,15 @@ accurately define what interface to choose, change the values of the
 "preferred_net_interface_names" field in "WEB-INF/web.xml" file of the WAR
 application and then re-deploy the web application.
 
-
-
 Building From Source
 --------------------
-This project includes an Ant buildfile in the root directory to enable the 
-project to be completely re-built from source and modified and enhanced where
-necessary. The project also includes an Eclipse (OEPE) '.project' Project file, 
-enabling developers to optionally use Eclipse to modify the source (just 
-import WLHostMachineStats as an existing project into Eclipse). 
+This project includes a Maven buildfile in the root directory to enable the project to be completely re-built from source and modified and enhanced where necessary.
+The project also includes an Eclipse (OEPE) '.project' Project file, enabling developers to optionally use Eclipse to modify the source (just import WLHostMachineStats as an existing project into Eclipse). 
+To re-build the project, first ensure the Java SDK and Maven is installed and their 'bin' directories are present in PATH environment variable, then check the values in the pom.xml file in the project's root directory to ensure this reflects your local WebLogic environment settings. 
+Run the following commands to clean the project, compile the source code and build the WAR web-application:
 
-To re-build the project, first ensure the Java 1.5.x SDK and Ant 1.6+ is 
-installed and their 'bin' directories are present in PATH environment 
-variable, then check the values in the local.properties file in the project's
-root directory to ensure this reflects your local WebLogic environment 
-settings. 
-
-Run the following commands to clean the project, compile the source code and 
-build the WAR web-application:
-
- > ant clean
- > ant
-
-OPTIONAL: To automatically deploy the generated WAR web-application to a 
-running WebLogic Server, first modify the 'local.properties' file in the root 
-of the project, to reflect the required WebLogic settings and then run:
-
- > ant deploy
-
-To undeploy the application, run:
-
- > ant undeploy
- 
+ > mvn package
 
 Project Contact
 ---------------
-Paul Done  (send email to the "gmail.com" email address for gmail user 'pkdone')
+GREGOIRE Alain (send email to the "gmail.com" email address for gmail user 'gregoire.alain')

@@ -44,8 +44,8 @@ import com.sun.management.UnixOperatingSystemMXBean;
 public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegistration {
 	
 	// Constants
-	private static final String WLHMS_APP_NAME = "WLHostMachineStats";
-	private static final String WLHMS_APP_VERSION = "0.3.0";
+	private static final String WL_HOST_MACHINE_APP_NAME = "WLHostMachineStats";
+	private static final String WL_HOST_MACHINE_APP_VERSION = "0.3.0";
 	private static final int PERCENT = 100;
 	private static final String ROOT_FILESYSTEM_PATH = "/"; 	// What about on Windows and other OSes? "c:\\" ?
 	private static final int BYTES_PER_MEGABYTE = 1024*1024;
@@ -64,7 +64,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @param netInterfaceNames Comma separated list of names of the preferred network interface to try to monitor
 	 */
 	public WLHostMachineStats(String netInterfaceNames) {
-		log = new NonCatalogLogger(WLHMS_APP_NAME);
+		log = new NonCatalogLogger(WL_HOST_MACHINE_APP_NAME);
 		preferredNetInterfaceName = findMatchingNetInterfaceName(netInterfaceNames);
 		log.notice("Monitored host network interface: " + preferredNetInterfaceName);
 	}
@@ -844,6 +844,6 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The version of WLHostMachineStats MBean
 	 */
 	public String getMBeanVersion() {
-		return WLHMS_APP_VERSION;
+		return WL_HOST_MACHINE_APP_VERSION;
 	}
 }

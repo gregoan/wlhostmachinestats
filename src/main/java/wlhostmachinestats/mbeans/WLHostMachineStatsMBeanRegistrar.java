@@ -43,7 +43,7 @@ public class WLHostMachineStatsMBeanRegistrar {
 		InitialContext ctx = new InitialContext(); 
 		MBeanServer mbs = (MBeanServer) ctx.lookup(RUNTIME_MBEAN_SERVER_JNDI_KEY); 
 		WLHostMachineStats mbean = new WLHostMachineStats(netInterfaceNames);
-		ObjectName mbeanObjName = new ObjectName(WLHOST_MACHINE_STATS_MBEAN_NAME);
+		ObjectName mbeanObjName = new ObjectName(WL_HOST_MACHINE_STATS_MBEAN_NAME);
 		mbs.registerMBean(mbean, mbeanObjName);
 		ctx.close();
 	}
@@ -59,7 +59,7 @@ public class WLHostMachineStatsMBeanRegistrar {
 	public void deregister() throws NamingException, MBeanRegistrationException, InstanceNotFoundException, MalformedObjectNameException {
 		InitialContext ctx = new InitialContext(); 
 		MBeanServer mbs = (MBeanServer) ctx.lookup(RUNTIME_MBEAN_SERVER_JNDI_KEY);
-		ObjectName mbeanObjName = new ObjectName(WLHOST_MACHINE_STATS_MBEAN_NAME);
+		ObjectName mbeanObjName = new ObjectName(WL_HOST_MACHINE_STATS_MBEAN_NAME);
 		
 		if ((mbeanObjName != null) && (mbs.isRegistered(mbeanObjName))) { 
 			mbs.unregisterMBean(mbeanObjName);
@@ -70,5 +70,5 @@ public class WLHostMachineStatsMBeanRegistrar {
 
 	// Constants
 	private final static String RUNTIME_MBEAN_SERVER_JNDI_KEY = "java:comp/env/jmx/runtime";
-	private final static String WLHOST_MACHINE_STATS_MBEAN_NAME = "wlhostmachinestats:name=WLHostMachineStats";		
+	private final static String WL_HOST_MACHINE_STATS_MBEAN_NAME = "wlhostmachinestats:name=WLHostMachineStats";		
 }

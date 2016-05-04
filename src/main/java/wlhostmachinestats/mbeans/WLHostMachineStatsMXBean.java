@@ -22,6 +22,32 @@ package wlhostmachinestats.mbeans;
  * @see javax.management.MXBean
  */
 public interface WLHostMachineStatsMXBean {
+		
+	// -------------------------------------------------
+	// CPU / SYSTEM
+	// ------------
+	
+	//public String getName();
+	//public String getArch();
+	//public String getVersion();
+	
+	public int getAvailableProcessors();
+	public double getSystemLoadAverage();
+	
+	public long getCommittedVirtualMemorySizeMegabytes();
+	public long getFreePhysicalMemorySizeMegabytes();
+	public long getFreeSwapSpaceSizeMegabytes();
+	public long getMaxFileDescriptorCount();
+	
+	public long getOpenFileDescriptorCount();
+	public double getProcessCpuLoad();
+	public long getProcessCpuTime();
+	public double getSystemCpuLoad();
+	
+	public long getTotalPhysicalMemorySizeMegabytes();
+	public long getTotalSwapSpaceSizeMegabytes();
+	// -------------------------------------------------
+	
 	/**
 	 * Gets the percentage of processing power (which maybe across a number of
 	 * CPUs and Cores) currently being used by all processes on the host 

@@ -14,6 +14,9 @@
 //POSSIBILITY OF SUCH DAMAGE.
 package wlhostmachinestats.mbeans;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -21,7 +24,12 @@ import javax.management.ObjectName;
 import org.hyperic.sigar.NetInterfaceStat;
 import org.hyperic.sigar.Sigar;
 
+//import org.hyperic.sigar.NetInterfaceStat;
+//import org.hyperic.sigar.Sigar;
+
 import weblogic.logging.NonCatalogLogger;
+
+import com.sun.management.UnixOperatingSystemMXBean;
 
 /**
  * Implementation of the MBean exposing O.S/machine statistics for the machine
@@ -32,16 +40,170 @@ import weblogic.logging.NonCatalogLogger;
  *  
  * @see javax.management.MXBean
  */
+@SuppressWarnings("restriction")
 public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegistration {
+	
+	// Constants
+	private static final String WL_HOST_MACHINE_APP_NAME = "WLHostMachineStats";
+	private static final String WL_HOST_MACHINE_APP_VERSION = "0.3.0";
+	private static final int PERCENT = 100;
+	private static final String ROOT_FILESYSTEM_PATH = "/"; 	// What about on Windows and other OSes? "c:\\" ?
+	private static final int BYTES_PER_MEGABYTE = 1024*1024;
+	private static final int MILLION_UNITS = 1000000;
+	private static final String INFC_NAMES_TOKENIZER_PATTERN = ",\\s*";
+	
+	// Members 
+	private final Sigar sigar = new Sigar();
+	private final NonCatalogLogger log;
+	private final String preferredNetInterfaceName;
+	private volatile boolean haveLoggedException = false;
+		
 	/**
 	 * Main constructor
 	 * 
 	 * @param netInterfaceNames Comma separated list of names of the preferred network interface to try to monitor
 	 */
 	public WLHostMachineStats(String netInterfaceNames) {
-		log = new NonCatalogLogger(WLHMS_APP_NAME);
+		log = new NonCatalogLogger(WL_HOST_MACHINE_APP_NAME);
 		preferredNetInterfaceName = findMatchingNetInterfaceName(netInterfaceNames);
 		log.notice("Monitored host network interface: " + preferredNetInterfaceName);
+	}
+	
+/*
+	public String getName() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    return osMXBean.getName();
+	}
+
+	public String getArch() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    return osMXBean.getArch();
+	}
+
+	public String getVersion() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    return osMXBean.getVersion();
+	}
+*/
+	
+	public int getAvailableProcessors() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    return osMXBean.getAvailableProcessors();
+	}
+	
+	public double getSystemLoadAverage() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    return osMXBean.getSystemLoadAverage();
+	}
+	
+	public long getCommittedVirtualMemorySizeMegabytes() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getCommittedVirtualMemorySize() / BYTES_PER_MEGABYTE;
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public long getFreePhysicalMemorySizeMegabytes() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getFreePhysicalMemorySize() / BYTES_PER_MEGABYTE;
+	    } else {
+	    	return -1;
+	    }
+	}
+
+	public long getFreeSwapSpaceSizeMegabytes() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getFreeSwapSpaceSize() / BYTES_PER_MEGABYTE;
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public long getMaxFileDescriptorCount() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getMaxFileDescriptorCount();
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public long getOpenFileDescriptorCount(){
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getOpenFileDescriptorCount();
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public double getProcessCpuLoad() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getProcessCpuLoad();
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public long getProcessCpuTime() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getProcessCpuTime();
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public double getSystemCpuLoad() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getSystemCpuLoad();
+	    } else {
+	    	return -1;
+	    }
+	}
+
+	public long getTotalPhysicalMemorySizeMegabytes() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;	    	
+	    	return unixMXBean.getTotalPhysicalMemorySize() / BYTES_PER_MEGABYTE;
+	    } else {
+	    	return -1;
+	    }
+	}
+	
+	public long getTotalSwapSpaceSizeMegabytes() {
+		OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
+	    
+	    if(osMXBean instanceof UnixOperatingSystemMXBean) {
+	    	UnixOperatingSystemMXBean unixMXBean = (UnixOperatingSystemMXBean)osMXBean;
+	    	return unixMXBean.getTotalSwapSpaceSize() / BYTES_PER_MEGABYTE;
+	    } else {
+	    	return -1;
+	    }
 	}
 	
 	/**
@@ -52,6 +214,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Processor usage percentage
 	 */
 	public int getProcessorUsagePercent() {
+
 		try {
 			return (int) (PERCENT * sigar.getCpuPerc().getCombined());
 		} catch (Exception e) {
@@ -66,6 +229,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Average workload factor for last minute
 	 */
 	public double getProcessorLastMinuteWorkloadAverage() {
+
 		try {
 			return (sigar.getLoadAverage())[0];
 		} catch (Exception e) {
@@ -80,6 +244,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The number of OS processes running
 	 */
 	public long getNativeProcessesCount() {
+
 		try {
 			return sigar.getProcStat().getTotal();
 		} catch (Exception e) {
@@ -94,6 +259,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The percentage of physical memory used
 	 */
 	public int getPhysicalMemoryUsedPercent() {
+
 		try {
 			return (int) sigar.getMem().getUsedPercent();
 		} catch (Exception e) {
@@ -108,6 +274,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The percentage of physical swap used
 	 */
 	public int getPhysicalSwapUsedPercent() {
+
 		try {
 			return (int) (PERCENT * ((double)sigar.getSwap().getUsed()) / ((double)sigar.getSwap().getTotal()));
 		} catch (Exception e) {
@@ -123,6 +290,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The percentage of root filesystem used
 	 */
 	public int getRootFilesystemUsedPercent() {
+
 		try {
 			return (int) (PERCENT * sigar.getFileSystemUsage(ROOT_FILESYSTEM_PATH).getUsePercent());
 		} catch (Exception e) {
@@ -138,6 +306,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The proportion of cores in use by this JVM
 	 */
 	public double getJVMInstanceCoresUsed() {
+
 		try {
 			return sigar.getProcCpu(sigar.getPid()).getPercent();
 		} catch (Exception e) {
@@ -153,6 +322,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Amount of physical memory used by the JVM in megabytes
 	 */
 	public long getJVMInstancePhysicalMemoryUsedMegabytes() {
+
 		try {
 			return (sigar.getProcMem(sigar.getPid()).getSize() / BYTES_PER_MEGABYTE);
 		} catch (Exception e) {
@@ -167,6 +337,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Count of TCP sockets in LISTEN state
 	 */
 	public int getTcpListenCount() {
+
 		try {
 			return sigar.getNetStat().getTcpListen();
 		} catch (Exception e) {
@@ -181,6 +352,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Count of TCP sockets in ESTABLISHED state
 	 */
 	public int getTcpEstablishedCount() {
+
 		try {
 			return sigar.getNetStat().getTcpEstablished();
 		} catch (Exception e) {
@@ -195,6 +367,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Count of TCP sockets in TIME-WAIT state
 	 */
 	public int getTcpTimeWaitCount() {
+
 		try {
 			return sigar.getNetStat().getTcpTimeWait();
 		} catch (Exception e) {
@@ -209,6 +382,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Count of TCP sockets in CLOSE-WAIT state
 	 */
 	public int getTcpCloseWaitCount() {
+
 		try {
 			return sigar.getNetStat().getTcpCloseWait();
 		} catch (Exception e) {
@@ -224,6 +398,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The name of the network interface being monitored
 	 */
 	public String getMonitoredNetworkInferfaceName() {
+
 		if (preferredNetInterfaceName == null) {
 			return "<none>";
 		} else {
@@ -237,7 +412,8 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * 
 	 * @return Number of packets received (in millions)
 	 */
-	public long getNetworkRxMillionPackets() {				
+	public long getNetworkRxMillionPackets() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -262,6 +438,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of errors in receiving
 	 */
 	public long getNetworkRxErrors() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -286,6 +463,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets dropped in receiving
 	 */
 	public long getNetworkRxDropped() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -310,6 +488,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of frames received
 	 */
 	public long getNetworkRxFrame() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -334,6 +513,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets overruns in receiving
 	 */
 	public long getNetworkRxOverruns() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -358,6 +538,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of megabytes received
 	 */
 	public long getNetworkRxMegabytes() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -383,6 +564,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets transmitted (in millions)
 	 */
 	public long getNetworkTxMillionPackets() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -407,6 +589,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of errors in transmitting
 	 */
 	public long getNetworkTxErrors() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -432,6 +615,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets dropped in transmitting
 	 */
 	public long getNetworkTxDropped() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -456,6 +640,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets overruns in transmitting
 	 */
 	public long getNetworkTxOverruns() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -480,6 +665,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets carrier problems in transmitting
 	 */
 	public long getNetworkTxCarrier() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -504,6 +690,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of packets collisions in transmitting
 	 */
 	public long getNetworkTxCollisions() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -528,6 +715,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return Number of megabytes transmitted
 	 */
 	public long getNetworkTxMegabytes() {
+
 		try {
 			if (preferredNetInterfaceName == null) {
 				return -1;
@@ -561,7 +749,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @param registrationDone Indicates if registration was completed
 	 */
 	public void postRegister(Boolean registrationDone) {
-		log.notice("Main MBean initialised");
+		log.notice("WlHostMachineStats MBean initialised");
 	}
 
 	/**
@@ -576,7 +764,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * Post-deregister event handler - logs that stopped
 	 */
 	public void postDeregister() {
-		log.notice("Main MBean destroyed");
+		log.notice("WlHostMachineStats MBean destroyed");
 	}
 
 	/**
@@ -610,6 +798,7 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The name of the primary matching available network interface 
 	 */
 	private String findMatchingNetInterfaceName(String preferredNetInterfaceNames) {
+
 		try {
 			String[] availableNetInterfaces = sigar.getNetInterfaceList();
 
@@ -655,21 +844,6 @@ public class WLHostMachineStats implements WLHostMachineStatsMXBean, MBeanRegist
 	 * @return The version of WLHostMachineStats MBean
 	 */
 	public String getMBeanVersion() {
-		return WLHMS_APP_VERSION;
+		return WL_HOST_MACHINE_APP_VERSION;
 	}
-
-	// Constants
-	private static final String WLHMS_APP_NAME = "WLHostMachineStats";
-	private static final String WLHMS_APP_VERSION = "0.3.0";
-	private static final int PERCENT = 100;
-	private static final String ROOT_FILESYSTEM_PATH = "/"; 	// What about on Windows and other OSes? "c:\\" ?
-	private static final int BYTES_PER_MEGABYTE = 1024*1024;
-	private static final int MILLION_UNITS = 1000000;
-	private static final String INFC_NAMES_TOKENIZER_PATTERN = ",\\s*";
-	
-	// Members 
-	private final Sigar sigar = new Sigar();
-	private final NonCatalogLogger log;
-	private final String preferredNetInterfaceName;
-	private volatile boolean haveLoggedException = false;
 }

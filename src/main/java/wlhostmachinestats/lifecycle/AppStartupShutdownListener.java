@@ -31,9 +31,9 @@ public class AppStartupShutdownListener implements ServletContextListener {
 	 * @param event The servlet context event
 	 */
 	public void contextInitialized(ServletContextEvent event) {
-	        try {
-	        	String netInterfaceNames = event.getServletContext().getInitParameter(NET_INTERFACE_NAMES_KEY);
-	        	wlHostMachineStatsMBeanRegistrar.register(netInterfaceNames);
+        try {
+        	String netInterfaceNames = event.getServletContext().getInitParameter(NET_INTERFACE_NAMES_KEY);
+        	wlHostMachineStatsMBeanRegistrar.register(netInterfaceNames);
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to initialise application. Cause: " + e, e);
 		} 

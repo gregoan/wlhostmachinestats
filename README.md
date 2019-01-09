@@ -59,9 +59,9 @@ Run the following commands to clean the project, compile the source code and bui
 Installation
 ------------
 
-LD_LIBRARY_PATH should be updated adding a directory containing the "*.so" files
+**LD_LIBRARY_PATH** should be updated adding a directory containing the "*.so" files
 
-For Mac, the property "**-Djava.library.path=<DIRECTORY>**" should be used as LD_LIBRARY_PATH doesn't seem to be working
+For Mac, the property "**-Djava.library.path=<DIRECTORY>**" should be used as **LD_LIBRARY_PATH** doesn't seem to be working
 Edit bin/startWebLogic.sh file and add
 
         LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
@@ -86,4 +86,4 @@ On Linux, you can simply add in startWebLogic.sh file :
 
 Project Contact
 ---------------
-GREGOIRE Alain (send email to the "gmail.com" email address for gmail user 'gregoire.alain')
+GREGOIRE Alain (send email to the "gmail.com" email address for gmail user "gregoire.alain")

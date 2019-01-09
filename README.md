@@ -59,28 +59,28 @@ Installation
 
 LD_LIBRARY_PATH should be updated adding a directory containing the "*.so" files
 
-For Mac, the property "-Djava.library.path=<DIRECTORY>" should be used as LD_LIBRARY_PATH doesn't seem to be working
+For Mac, the property "**-Djava.library.path=<DIRECTORY>**" should be used as LD_LIBRARY_PATH doesn't seem to be working
 Edit bin/startWebLogic.sh file and add
 
-          LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
-          DYLD_LIBRARY_PATH={LD_LIBRARY_PATH}
+  LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
+  DYLD_LIBRARY_PATH={LD_LIBRARY_PATH}
           
-          export LD_LIBRARY_PATH
-          export DYLD_LIBRARY_PATH
-
-          ...
-          echo "Starting WLS with line:"
-          ...
-          ${JAVA_HOME}/bin/java ${JAVA_VM} ${MEM_ARGS} **-Djava.library.path=${LD_LIBRARY_PATH}** -Dweblogic.Name=${SERVER_NAME} -Djava.security.policy=${WLS_POLICY_FILE} ${JAVA_OPTIONS} ${PROXY_SETTINGS} ${SERVER_CLASS}
-          ...
+  export LD_LIBRARY_PATH
+  export DYLD_LIBRARY_PATH
+  
+  ...
+  echo "Starting WLS with line:"
+  ...
+  ${JAVA_HOME}/bin/java ${JAVA_VM} ${MEM_ARGS} **-Djava.library.path=${LD_LIBRARY_PATH}** -Dweblogic.Name=${SERVER_NAME} -Djava.security.policy=${WLS_POLICY_FILE} ${JAVA_OPTIONS} ${PROXY_SETTINGS} ${SERVER_CLASS}
+  ...
 
 On Linux, you can simply add in startWebLogic.sh file :
 
-          LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
-          DYLD_LIBRARY_PATH={LD_LIBRARY_PATH}
-
-          export LD_LIBRARY_PATH
-          export DYLD_LIBRARY_PATH
+  LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
+  DYLD_LIBRARY_PATH={LD_LIBRARY_PATH}
+  
+  export LD_LIBRARY_PATH
+  export DYLD_LIBRARY_PATH
 
 Project Contact
 ---------------

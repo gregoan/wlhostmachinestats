@@ -25,16 +25,14 @@ Quick Installation How To
    1. Navigate to this project's 'Download' page and download the zip file: 
    wlhostmachinestats-nn.zip
    2. Unpack the zip file to a temporary directory.
-   3. From the unzipped 'lib' sub-directory, copy all the files to the 'lib'
-   directory of your WebLogic domain (<domainhome>/lib). These are the SIGAR
-   JAR and C Libraries used by WLHostMachineStats to be able to interrogate 
-   the  host operating system to gather statistics.
    4. In the "setDomainEnv.sh" and "startNodeManager.sh" scripts of your 
    WebLogic domain, add the following line near the top of both files to 
    ensure that the SIGAR C Library is on the system path whenever the WebLogic
-   servers are started (changing <domainpath> for the real path of your 
-   domain).
+   servers are started (changing <domainpath> for the real path of your domain).
+   
+   
           export LD_LIBRARY_PATH=<domainpath>/lib:$LD_LIBRARY_PATH   
+   
    5. Start (or re-start) your WebLogic domain's servers, so that the previous
    steps, above, take affect. 
    6. From the unzipped directory, deploy wlhostmachinestats-nn.war Web 
@@ -63,7 +61,35 @@ The project also includes an Eclipse (OEPE) '.project' Project file, enabling de
 To re-build the project, first ensure the Java SDK and Maven is installed and their 'bin' directories are present in PATH environment variable, then check the values in the pom.xml file in the project's root directory to ensure this reflects your local WebLogic environment settings. 
 Run the following commands to clean the project, compile the source code and build the WAR web-application:
 
- > mvn package
+ > mvn clean package
+ 
+Installation
+------------
+
+LD_LIBRARY_PATH should be updated adding a directory containing the "*.so" files
+
+For Mac, the property "-Djava.library.path=<DIRECTORY>" should be used as LD_LIBRARY_PATH doesn't seem to be working
+Edit bin/startWebLogic.sh file and add
+
+LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
+DYLD_LIBRARY_PATH={LD_LIBRARY_PATH}
+
+export LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH
+
+...
+        echo "Starting WLS with line:"
+        echo "${JAVA_HOME}/bin/java ${JAVA_VM} ${MEM_ARGS} -Djava.library.path=${LD_LIBRARY_PATH} -Dweblogic.Name=${SERVER_NAME} -Djava.security.policy=${WLS_POLICY_FILE} ${JAVA_OPTIONS} ${PROXY_SETTINGS} ${SERVER_CLASS}"
+        ${JAVA_HOME}/bin/java ${JAVA_VM} ${MEM_ARGS} -Djava.library.path=${LD_LIBRARY_PATH} -Dweblogic.Name=${SERVER_NAME} -Djava.security.policy=${WLS_POLICY_FILE} ${JAVA_OPTIONS} ${PROXY_SETTINGS} ${SERVER_CLASS}
+...
+
+On Linux, you can simply add in startWebLogic.sh file :
+
+LD_LIBRARY_PATH=${DOMAIN_HOME}/ld_library:${LD_LIBRARY_PATH}
+DYLD_LIBRARY_PATH={LD_LIBRARY_PATH}
+
+export LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH
 
 Project Contact
 ---------------
